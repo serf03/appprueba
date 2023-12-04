@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,11 +12,12 @@
     <script>
         const apiKey = '9f6dd174f8f447a896e32960f6c6a8d5';
         const endpoint = 'https://api.cognitive.microsofttranslator.com/';
-        const targetLanguage = 'en';
+        const targetLanguage = 'es';
 
         const animalChartOptions = {
             chart: {
-                type: 'bar'
+                type: 'bar',
+                height: 350
             },
             series: [{
                 name: 'Número de Animales',
@@ -40,7 +40,7 @@
 
                 // Traducción de etiquetas del gráfico
                 const traducciones = await traducirTexto(animalChartOptions.xaxis.categories.join(','));
-                const etiquetasTraducidas = traducciones.split(',');
+                const etiquetasTraducidas = traducciones ? traducciones.split(',') : [];
 
                 if (!areArraysEqual(animalChartOptions.xaxis.categories, etiquetasTraducidas)) {
                     animalChartOptions.xaxis.categories = etiquetasTraducidas;
@@ -52,23 +52,28 @@
         }
 
         async function traducirTexto(texto) {
-            const params = new URLSearchParams({
-                'api-version': '3.0',
-                'to': targetLanguage
-            });
+            try {
+                const params = new URLSearchParams({
+                    'api-version': '3.0',
+                    'to': targetLanguage
+                });
 
-            const response = await fetch(`${endpoint}translate?${params}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Ocp-Apim-Subscription-Key': apiKey,
-                    'Ocp-Apim-Subscription-Region': 'TU_REGION'
-                },
-                body: JSON.stringify([{ 'text': texto }])
-            });
+                const response = await fetch(`${endpoint}translate?${params}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Ocp-Apim-Subscription-Key': apiKey,
+                        'Ocp-Apim-Subscription-Region': 'TU_REGION'
+                    },
+                    body: JSON.stringify([{'text': texto}])
+                });
 
-            const data = await response.json();
-            return data[0].translations[0].text;
+                const data = await response.json();
+                return data?.[0]?.translations?.[0]?.text || '';
+            } catch (error) {
+                console.error('Error al traducir el texto:', error);
+                return '';
+            }
         }
 
         function renderizarGrafico() {
@@ -81,20 +86,17 @@
         }
 
         // Llama a la función de traducción cuando la página haya cargado.
-        window.onload = function () {
+        window.onload = function() {
             traducirPagina();
         };
     </script>
 </head>
-
 <body>
     <h1>Página Multilingüe con ApexCharts</h1>
-    <p>Esta página muestra un gráfico de barras con nombres de animales y utiliza la API de Traducción de Microsoft para
-        ser multilingüe.</p>
+    <p>Esta página muestra un gráfico de barras con nombres de animales y utiliza la API de Traducción de Microsoft para ser multilingüe.</p>
 
     <div id="animal-chart"></div>
 
     <button onclick="traducirPagina()">Traducir Página</button>
 </body>
-
 </html>
