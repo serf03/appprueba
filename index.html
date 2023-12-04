@@ -63,7 +63,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Ocp-Apim-Subscription-Key': apiKey,
-                        'Ocp-Apim-Subscription-Region': 'GLOBAL'
+                        'Ocp-Apim-Subscription-Region': 'global'
                     },
                     body: JSON.stringify([{'text': texto}])
                 });
@@ -95,8 +95,9 @@
    
 
     <div id="animal-chart"></div>
- <h1>Página Multilingüe con ApexCharts</h1>
-    <p>Esta página muestra un gráfico de barras con nombres de animales y utiliza la API de Traducción de Microsoft para ser multilingüe.</p>
+
     <button onclick="traducirPagina()">Traducir Página</button>
+     <h1>Página Multilingüe con ApexCharts</h1>
+    <p>Esta página muestra un gráfico de barras con nombres de animales y utiliza la API de Traducción de Microsoft para ser multilingüe.</p>
 </body>
 </html>
