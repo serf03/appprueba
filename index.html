@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Multilingüe con ApexCharts</title>
+
+    <!-- Enlace a ApexCharts y su tema (ajusta la ruta según tu configuración) -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@3.30.0/dist/apexcharts.css">
+
+    <script>
+        const apiKey = '24f125863fca4b39a567926ff27bc18c';
+        const endpoint = 'https://api.cognitive.microsofttranslator.com/';
+        const targetLanguage = 'en';
+
+        const animalChartOptions = {
+            chart: {
+                type: 'bar'
+            },
+            series: [{
+                name: 'Número de Animales',
+                data: [10, 15, 8, 25, 20]
+            }],
+            xaxis: {
+                categories: ['Perro', 'Gato', 'León', 'Elefante', 'Pez']
+            }
+        };
+
+        async function traducirPagina() {
+            try {
+                // Traducción de títulos y descripciones
+                const elementosATraducir = document.querySelectorAll('h1, h2, p');
+                for (const elemento of elementosATraducir) {
+                    const textoOriginal = elemento.innerText;
+                    const traduccion = await traducirTexto(textoOriginal);
+                    elemento.innerText = traduccion;
+                }
+
+                // Traducción de etiquetas del gráfico
+                const traducciones = await traducirTexto(animalChartOptions.xaxis.categories.join(','));
+                const etiquetasTraducidas = traducciones.split(',');
+
+                if (!areArraysEqual(animalChartOptions.xaxis.categories, etiquetasTraducidas)) {
+                    animalChartOptions.xaxis.categories = etiquetasTraducidas;
+                    renderizarGrafico();
+                }
+            } catch (error) {
+                console.error('Error al traducir la página:', error);
+            }
+        }
+
+        async function traducirTexto(texto) {
+            const params = new URLSearchParams({
+                'api-version': '3.0',
+                'to': targetLanguage
+            });
+
+            const response = await fetch(`${endpoint}translate?${params}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Ocp-Apim-Subscription-Key': apiKey,
+                    'Ocp-Apim-Subscription-Region': 'TU_REGION'
+                },
+                body: JSON.stringify([{ 'text': texto }])
+            });
+
+            const data = await response.json();
+            return data[0].translations[0].text;
+        }
+
+        function renderizarGrafico() {
+            const chart = new ApexCharts(document.querySelector("#animal-chart"), animalChartOptions);
+            chart.render();
+        }
+
+        function areArraysEqual(arr1, arr2) {
+            return JSON.stringify(arr1) === JSON.stringify(arr2);
+        }
+
+        // Llama a la función de traducción cuando la página haya cargado.
+        window.onload = function () {
+            traducirPagina();
+        };
+    </script>
+</head>
+
+<body>
+    <h1>Página Multilingüe con ApexCharts</h1>
+    <p>Esta página muestra un gráfico de barras con nombres de animales y utiliza la API de Traducción de Microsoft para
+        ser multilingüe.</p>
+
+    <div id="animal-chart"></div>
+
+    <button onclick="traducirPagina()">Traducir Página</button>
+</body>
+
+</html>
