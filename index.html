@@ -56,15 +56,15 @@ async function traducirTexto(texto) {
            'to': targetLanguage
        });
 
-const response = await fetch(`${endpoint}translate?${params}`, {
-   method: 'POST',
-   headers: {
-       'Content-Type': 'application/json',
-       'Ocp-Apim-Subscription-Key': apiKey,
-       'Ocp-Apim-Subscription-Region': 'global'
-   },
-   body: JSON.stringify([{'text': texto}])
-});
+
+       const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json; charset=UTF-8',
+              'Ocp-Apim-Subscription-Key': apiKey
+          },
+          body: JSON.stringify([{'Text': texto}])
+        });
 
        if (!response.ok) {
            throw new Error(`HTTP error! status: ${response.status}`);
