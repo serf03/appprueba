@@ -10,7 +10,7 @@
   <script>
     const key = 'd3146becac8f4d1cad2fe34ebe5e7402';
     const endpoint = 'https://api.cognitive.microsofttranslator.com/';
-    const location = 'global';
+    const subscriptionRegion = 'global';
 
     async function translateText() {
       const route = '/translate?api-version=3.0&from=es&to=en';
@@ -23,7 +23,7 @@
       const headers = {
         'Content-Type': 'application/json',
         'Ocp-Apim-Subscription-Key': key,
-        'Ocp-Apim-Subscription-Region': location,
+        'Ocp-Apim-Subscription-Region': subscriptionRegion,
       };
 
       const options = {
