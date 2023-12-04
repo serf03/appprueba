@@ -1,105 +1,48 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página Multilingüe con ApexCharts</title>
-
-    <!-- Enlace a ApexCharts y su tema (ajusta la ruta según tu configuración) -->
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@3.30.0/dist/apexcharts.css">
-
-    <script>
-const apiKey = '9b65b5587b724322b34cd3f75e4b1a91';
-const endpoint = 'https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&from=en&to=zh-Hans';
-const targetLanguage = 'fr';
-
-const animalChartOptions = {
-   chart: {
-       type: 'bar',
-       height: 350
-   },
-   series: [{
-       name: 'Número de Animales',
-       data: [10, 15, 8, 25, 20]
-   }],
-   xaxis: {
-       categories: ['Perro', 'Gato', 'León', 'Elefante', 'Pez']
-   }
-};
-
-async function traducirPagina() {
-   try {
-       const elementosATraducir = document.querySelectorAll('h1, h2, p');
-       for (const elemento of elementosATraducir) {
-           const textoOriginal = elemento.textContent;
-           const traduccion = await traducirTexto(textoOriginal);
-           elemento.textContent = traduccion;
-       }
-
-       const traducciones = await traducirTexto(animalChartOptions.xaxis.categories.join(','));
-       const etiquetasTraducidas = traducciones ? traducciones.split(',') : [];
-
-       if (!areArraysEqual(animalChartOptions.xaxis.categories, etiquetasTraducidas)) {
-           animalChartOptions.xaxis.categories = etiquetasTraducidas;
-           renderizarGrafico();
-       }
-   } catch (error) {
-       console.error('Error al traducir la página:', error);
-   }
-}
-
-async function traducirTexto(texto) {
-   try {
-       const params = new URLSearchParams({
-           'api-version': '3.0',
-           'to': targetLanguage
-       });
-
-
-       const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json; charset=UTF-8',
-              'Ocp-Apim-Subscription-Key': apiKey
-          },
-          body: JSON.stringify([{'Text': texto}])
-        });
-
-       if (!response.ok) {
-           throw new Error(`HTTP error! status: ${response.status}`);
-       }
-
-       const data = await response.json();
-       return data?.[0]?.translations?.[0]?.text || '';
-   } catch (error) {
-       console.error('Error al traducir el texto:', error);
-       return '';
-   }
-}
-
-function renderizarGrafico() {
-   const chart = new ApexCharts(document.querySelector("#animal-chart"), animalChartOptions);
-   chart.render();
-}
-
-function areArraysEqual(arr1, arr2) {
-   return JSON.stringify(arr1) === JSON.stringify(arr2);
-}
-
-window.onload = function() {
-   traducirPagina();
-};
-
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Traductor</title>
 </head>
 <body>
-   
 
-    <div id="animal-chart"></div>
+  <script>
+    const key = 'd3146becac8f4d1cad2fe34ebe5e7402';
+    const endpoint = 'https://api.cognitive.microsofttranslator.com/';
+    const location = 'global';
 
-    <button onclick="traducirPagina()">Traducir Página</button>
-     <h1>Página Multilingüe con ApexCharts</h1>
-    <p>Esta página muestra un gráfico de barras con nombres de animales y utiliza la API de Traducción de Microsoft para ser multilingüe.</p>
+    async function translateText() {
+      const route = '/translate?api-version=3.0&from=es&to=en';
+
+      const textToTranslate = prompt('Introduzca el texto a traducir:');
+
+      const body = [{ Text: textToTranslate }];
+      const requestBody = JSON.stringify(body);
+
+      const headers = {
+        'Content-Type': 'application/json',
+        'Ocp-Apim-Subscription-Key': key,
+        'Ocp-Apim-Subscription-Region': location,
+      };
+
+      const options = {
+        method: 'POST',
+        headers: headers,
+        body: requestBody,
+      };
+
+      try {
+        const response = await fetch(endpoint + route, options);
+        const result = await response.text();
+        console.log(result);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    translateText();
+  </script>
+
 </body>
 </html>
