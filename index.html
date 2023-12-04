@@ -10,85 +10,87 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@3.30.0/dist/apexcharts.css">
 
     <script>
-        const apiKey = '9b65b5587b724322b34cd3f75e4b1a91';
-        const endpoint = 'https://api.cognitive.microsofttranslator.com/';
-        const targetLanguage = 'fr';
+const apiKey = '9b65b5587b724322b34cd3f75e4b1a91';
+const endpoint = 'https://api.cognitive.microsofttranslator.com/';
+const targetLanguage = 'fr';
 
-        const animalChartOptions = {
-            chart: {
-                type: 'bar',
-                height: 350
-            },
-            series: [{
-                name: 'Número de Animales',
-                data: [10, 15, 8, 25, 20]
-            }],
-            xaxis: {
-                categories: ['Perro', 'Gato', 'León', 'Elefante', 'Pez']
-            }
-        };
+const animalChartOptions = {
+   chart: {
+       type: 'bar',
+       height: 350
+   },
+   series: [{
+       name: 'Número de Animales',
+       data: [10, 15, 8, 25, 20]
+   }],
+   xaxis: {
+       categories: ['Perro', 'Gato', 'León', 'Elefante', 'Pez']
+   }
+};
 
-        async function traducirPagina() {
-            try {
-                // Traducción de títulos y descripciones
-                const elementosATraducir = document.querySelectorAll('h1, h2, p');
-                for (const elemento of elementosATraducir) {
-                    const textoOriginal = elemento.innerText;
-                    const traduccion = await traducirTexto(textoOriginal);
-                    elemento.innerText = traduccion;
-                }
+async function traducirPagina() {
+   try {
+       const elementosATraducir = document.querySelectorAll('h1, h2, p');
+       for (const elemento of elementosATraducir) {
+           const textoOriginal = elemento.textContent;
+           const traduccion = await traducirTexto(textoOriginal);
+           elemento.textContent = traduccion;
+       }
 
-                // Traducción de etiquetas del gráfico
-                const traducciones = await traducirTexto(animalChartOptions.xaxis.categories.join(','));
-                const etiquetasTraducidas = traducciones ? traducciones.split(',') : [];
+       const traducciones = await traducirTexto(animalChartOptions.xaxis.categories.join(','));
+       const etiquetasTraducidas = traducciones ? traducciones.split(',') : [];
 
-                if (!areArraysEqual(animalChartOptions.xaxis.categories, etiquetasTraducidas)) {
-                    animalChartOptions.xaxis.categories = etiquetasTraducidas;
-                    renderizarGrafico();
-                }
-            } catch (error) {
-                console.error('Error al traducir la página:', error);
-            }
-        }
+       if (!areArraysEqual(animalChartOptions.xaxis.categories, etiquetasTraducidas)) {
+           animalChartOptions.xaxis.categories = etiquetasTraducidas;
+           renderizarGrafico();
+       }
+   } catch (error) {
+       console.error('Error al traducir la página:', error);
+   }
+}
 
-        async function traducirTexto(texto) {
-            try {
-                const params = new URLSearchParams({
-                    'api-version': '3.0',
-                    'to': targetLanguage
-                });
+async function traducirTexto(texto) {
+   try {
+       const params = new URLSearchParams({
+           'api-version': '3.0',
+           'to': targetLanguage
+       });
 
-                const response = await fetch(`${endpoint}translate?${params}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Ocp-Apim-Subscription-Key': apiKey,
-                        'Ocp-Apim-Subscription-Region': 'global'
-                    },
-                    body: JSON.stringify([{'text': texto}])
-                });
+       const response = await fetch(`${endpoint}translate?${params}`, {
+           method: 'POST',
+           headers: {
+               'Content-Type': 'application/json',
+               'Ocp-Apim-Subscription-Key': apiKey,
+               'Ocp-Apim-Subscription-Region': 'global'
+           },
+           body: JSON.stringify([{'text': texto}])
+       });
 
-                const data = await response.json();
-                return data?.[0]?.translations?.[0]?.text || '';
-            } catch (error) {
-                console.error('Error al traducir el texto:', error);
-                return '';
-            }
-        }
+       if (!response.ok) {
+           throw new Error(`HTTP error! status: ${response.status}`);
+       }
 
-        function renderizarGrafico() {
-            const chart = new ApexCharts(document.querySelector("#animal-chart"), animalChartOptions);
-            chart.render();
-        }
+       const data = await response.json();
+       return data?.[0]?.translations?.[0]?.text || '';
+   } catch (error) {
+       console.error('Error al traducir el texto:', error);
+       return '';
+   }
+}
 
-        function areArraysEqual(arr1, arr2) {
-            return JSON.stringify(arr1) === JSON.stringify(arr2);
-        }
+function renderizarGrafico() {
+   const chart = new ApexCharts(document.querySelector("#animal-chart"), animalChartOptions);
+   chart.render();
+}
 
-        // Llama a la función de traducción cuando la página haya cargado.
-        window.onload = function() {
-            traducirPagina();
-        };
+function areArraysEqual(arr1, arr2) {
+   return JSON.stringify(arr1) === JSON.stringify(arr2);
+}
+
+window.onload = function() {
+   traducirPagina();
+};
+
     </script>
 </head>
 <body>
